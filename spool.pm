@@ -45,6 +45,10 @@ use POSIX;
 
 my $size_spool = 32;
 my $spool_chmod = 0750;
+my $max_priority = 5;
+my $min_priority = 1;
+my $rnd_coeff = 64000; # value from 0 to $rnd_coeff to generate
+			# randomized file names
 
 sub initspooldirectory
 {
@@ -56,7 +60,7 @@ sub initspooldirectory
 	}
 	unless(-d $dir)
 	{
-		mkdir ($dir,$spool_chmod) or warn $!;
+		mkdir ($dir,$spool_chmod) or return $!;
 	}
 	my $currentdir = getcwd();
 	chdir($dir);
@@ -65,7 +69,7 @@ sub initspooldirectory
 	{
 		unless(-d $it)
 		{
-			mkdir ($it,$spool_chmod) or warn $!;
+			mkdir ($it,$spool_chmod) or return $!;
 		}
 	}
 	$spool{"type"} = "dir";
@@ -79,7 +83,7 @@ sub newfilename
 	my $dir = $_[0];
 	$dir = $dir."/".int(rand($size_spool));
 	my $entire_name = gen_name($dir);
-	$entire_name = $entire_name.int(rand(64000));
+	$entire_name = $entire_name.int(rand($rnd_coeff));
 	return $entire_name;
 }
 
@@ -103,10 +107,15 @@ sub putinspool
 		return -1;
 	}
 	$filename = $filename.".".$priority;
-	if((write_file("$filename.tmp",$content)) == -1)
-	{
-		return -1;
-	}
+#	if((write_file("$filename.tmp",$content)) == -1)
+#	{
+#		return -1;
+#	}
+# C code has a bug with some caracthers, ... did not find why, I come
+# back in Perl code for this part
+        open(OUT,">$filename.tmp") or return $!;
+        print OUT"$content";
+        close(OUT);
 	rename("$filename.tmp","$filename.mqs");
 	return 1;
 }
@@ -155,7 +164,7 @@ sub priority_spool
 	my @return;
 	my $pos = 0;
 	my $i;
-	for($i = 5; $i != 0; $i--)
+	for($i = $max_priority; $i != $min_priority - 1; $i--)
 	{
 		foreach $tmp (@files)
 		{

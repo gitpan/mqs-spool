@@ -20,6 +20,14 @@ print "ok 1\n";
 
 print "Initialisation of a new spool\n";
 my %spool = initspooldirectory("try_spool");
+
+if($spool{"type"} eq "dir")
+{
+	print "ok 1\n";
+}
+
+print "#################################\n";
+
 print "Definition of the spool\n";
 my $key;
 my $value;
@@ -27,7 +35,12 @@ while(($key,$value) = each %spool)
 {
 	print "spool{$key} => $value\n";
 }
+print "#################################\n";
+print "\n";
+print "#################################\n";
 print "File name generation =>".newfilename($spool{'directory'})."\n";
+print "#################################\n";
+print "\n";
 
 print "Generation of 1024 files in a spool (file has a random size between 1 to 4096 octets)\n";
 
@@ -53,11 +66,19 @@ for($i = 0; $i < 1024; $i++)
 	$content = "";
 }
 
-print "\nScan of a spool =>";
+print "1 ok\n\n"; # If you arrive here, the precedent test was managed with sucess
+print "\nScan of a spool ";
 my @tab = listfiles(\%spool,0) ;
-print @tab  ." Files found in the spool\n";
-print "First one is => $tab[0]\n";
-print "Last one is => $tab[$#tab]\n";
+if(@tab != 1024)
+{
+	print "nok -1\n";
+}
+else
+{
+	print "ok 1\n";
+} 
+#print "First one is => $tab[0]\n";
+#print "Last one is => $tab[$#tab]\n";
 
 print "I'm deleting all files in the spool \n";
 foreach $tmp(@tab)
@@ -66,7 +87,16 @@ foreach $tmp(@tab)
 	print ".";
 }
 
-print "\nActually ".listfiles(\%spool,0). " files in the spool\n\n";
+@tab = listfiles(\%spool,0);
+if(@tab == 0)
+{
+	print "ok 1\n\n";
+}
+else
+{
+	print "nok -1\n\n";
+}
+	
 print("put in spool a Multi lines message with a priority of 2\n");
 putinspool(\%spool,"Multiline\nmessage\n",2);
 print("Read the spool \n");
@@ -111,7 +141,7 @@ print "\n";
 
 print "Scan of spool with priority =>";
 @tab = listfiles(\%spool,1);
-print @tab . "files in spool\n";
+print @tab . " files in spool\n";
 foreach $tmp(@tab)
 {
 	print $tmp . "\n";
