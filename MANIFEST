@@ -1,0 +1,6 @@
+Changes
+MANIFEST
+Makefile.PL
+spool.pm
+spool.xs
+test.pl

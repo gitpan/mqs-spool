@@ -1,0 +1,9 @@
+Revision history for Perl extension mqs::spool.
+
+0.01  Sun Aug 26 20:42:06 2001
+	- original version; created by h2xs 1.4 with options
+		-cn mqs::spool
+
+0.02  Thu Sep  6 23:40:03 2001
+	- first version ready for the CPAN and tests by users
+

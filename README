@@ -1,0 +1,55 @@
+NAME
+    mqs::spool - Perl extension for management of spools
+
+SYNOPSIS
+      use mqs::spool;
+
+    %spool = initspooldirectory($dir)
+
+    $entire_file_name = newfilename($dir)
+
+    $int = putinspool(\%spool,$content,$priority)
+
+    $int = delfile($file)
+
+    ($content,$priority) = readfile($file)
+
+    @list_of_files = listfiles(\%spool)
+
+    $int = putinspoot(\%spool,$content,$priority)
+
+DESCRIPTION
+    mqs::spool is a module for Perl to manage big or very big spool.
+
+    More you have files in a directory, more the read or the write in this
+    directory become slow. mqs::spool manage a spool of 32 directories (you
+    can increase this number in the sources of the module by increase the
+    value of $size_spool).
+
+    A spool is defined by a very simple hash table. It contains informations
+    about the seat and the type of spool (tcp type of spool will soon come),
+    it is returned by the fonction initspooldirectory.
+
+    It's better to run initspooldirectory each time you want to use a spool,
+    this one will check if the spool exists and create or modify it (if you
+    modified the size by default of a spool) if not.
+
+    You can see the sources of test.pl to see how to use others functions in
+    your source code.
+
+  EXPORT
+
+                    initspooldirectory
+                    newfilename
+                    gen_name
+                    putinspool
+                    listfiles
+                    delfile
+                    readfile
+
+AUTHOR
+    Stephane TOUGARD elair@darea.fr
+
+SEE ALSO
+    perl(1).
+
