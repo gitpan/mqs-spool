@@ -4,6 +4,12 @@ Revision history for Perl extension mqs::spool.
 	- original version; created by h2xs 1.4 with options
 		-cn mqs::spool
 
-0.02  Thu Sep  6 23:40:03 2001
+0.01  Thu Sep  6 23:40:03 2001
 	- first version ready for the CPAN and tests by users
 
+0.02  Sat Sep 22 10:03:20 SGT 2001
+	- add a randomize int in the generation of the file name, there
+	  were trouble about duplicated files with FreeBSD
+	- add the function write_file wrotten in C to write the files in
+	  the spool, faster than Perl code.
+	- add of the priority function for the listfiles function.

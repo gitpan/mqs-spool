@@ -14,12 +14,24 @@ SYNOPSIS
 
     ($content,$priority) = readfile($file)
 
-    @list_of_files = listfiles(\%spool)
+    @list_of_files = listfiles(\%spool,$priority)
 
     $int = putinspoot(\%spool,$content,$priority)
 
 DESCRIPTION
     mqs::spool is a module for Perl to manage big or very big spool.
+
+    @list_of_files = listfiles(\%spool,$priority)
+
+    If $priority == 1, then the tabular returned is done with the priority,
+    in all other cases, the tabular returned is the list of files as the
+    function found them in the spool.
+
+    $int = putinspool(\%spool,$content,$priority)
+
+    $priority is an int between 1 to 5, other priorities will be accepted by
+    the functions, but the files will not be read by the listfiles function
+    whent the priority function is activated (dangerous)
 
     More you have files in a directory, more the read or the write in this
     directory become slow. mqs::spool manage a spool of 32 directories (you
@@ -41,7 +53,6 @@ DESCRIPTION
 
                     initspooldirectory
                     newfilename
-                    gen_name
                     putinspool
                     listfiles
                     delfile

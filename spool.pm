@@ -17,6 +17,7 @@ our @ISA = qw(Exporter DynaLoader);
 # This allows declaration	use mqs::spool ':all';
 # If you do not need this, moving things directly into @EXPORT or @EXPORT_OK
 # will save memory.
+
 our %EXPORT_TAGS = ( 'all' => [ qw(
 	
 ) ] );
@@ -26,13 +27,12 @@ our @EXPORT_OK = ( @{ $EXPORT_TAGS{'all'} } );
 our @EXPORT = qw(
 		initspooldirectory
 		newfilename
-		gen_name
 		putinspool
 		listfiles
 		delfile
 		readfile
 );
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 bootstrap mqs::spool $VERSION;
 
@@ -45,8 +45,6 @@ use POSIX;
 
 my $size_spool = 32;
 my $spool_chmod = 0750;
-my $pid = $$;
-
 
 sub initspooldirectory
 {
@@ -81,6 +79,7 @@ sub newfilename
 	my $dir = $_[0];
 	$dir = $dir."/".int(rand($size_spool));
 	my $entire_name = gen_name($dir);
+	$entire_name = $entire_name.int(rand(64000));
 	return $entire_name;
 }
 
@@ -104,9 +103,10 @@ sub putinspool
 		return -1;
 	}
 	$filename = $filename.".".$priority;
-	open(OUT,">$filename.tmp") or return $!;
-	print OUT"$content";
-	close(OUT);
+	if((write_file("$filename.tmp",$content)) == -1)
+	{
+		return -1;
+	}
 	rename("$filename.tmp","$filename.mqs");
 	return 1;
 }
@@ -137,7 +137,37 @@ sub listfiles
 		closedir(DIR);
 	}
 	$#files = $#files - 1;
-	return @files;
+	if($priority == 1)
+	{
+		return &priority_spool(@files);
+	}
+	else
+	{
+		return @files;
+	}
+}
+
+sub priority_spool
+{
+	my @files = @_;
+	my $tmp;
+	my @tab;
+	my @return;
+	my $pos = 0;
+	my $i;
+	for($i = 5; $i != 0; $i--)
+	{
+		foreach $tmp (@files)
+		{
+			@tab = split(/\./,$tmp);
+			if($tab[$#tab-1] == $i)
+			{
+				$return[$pos] = $tmp;
+				$pos++;
+			}
+		}
+	}
+	return @return;
 }
 
 sub delfile
@@ -164,6 +194,7 @@ sub readfile
 
 
 1;
+
 __END__
 # Below is stub documentation for your module. You better edit it!
 
@@ -185,13 +216,25 @@ $int = delfile($file)
 
 ($content,$priority) = readfile($file)
 
-@list_of_files = listfiles(\%spool)
+@list_of_files = listfiles(\%spool,$priority)
 
 $int = putinspoot(\%spool,$content,$priority)
 
 =head1 DESCRIPTION
 
 mqs::spool is a module for Perl to manage big or very big spool. 
+
+@list_of_files = listfiles(\%spool,$priority)
+
+If $priority == 1, then the tabular returned is done with the priority,
+in all other cases, the tabular returned is the list of files as the 
+function found them in the spool.
+
+$int = putinspool(\%spool,$content,$priority)
+
+$priority is an int between 1 to 5, other priorities will be accepted
+by the functions, but the files will not be read by the listfiles 
+function whent the priority function is activated (dangerous)
 
 More you have files in a directory, more the read or the write in this
 directory become slow. mqs::spool manage a spool of 32 directories (you
@@ -213,7 +256,6 @@ your source code.
 
 		initspooldirectory
 		newfilename
-		gen_name
 		putinspool
 		listfiles
 		delfile

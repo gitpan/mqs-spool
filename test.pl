@@ -54,7 +54,7 @@ for($i = 0; $i < 1024; $i++)
 }
 
 print "\nScan of a spool =>";
-my @tab = listfiles(\%spool,1) ;
+my @tab = listfiles(\%spool,0) ;
 print @tab  ." Files found in the spool\n";
 print "First one is => $tab[0]\n";
 print "Last one is => $tab[$#tab]\n";
@@ -66,11 +66,11 @@ foreach $tmp(@tab)
 	print ".";
 }
 
-print "\nActually ".listfiles(\%spool,1). " files in the spool\n\n";
+print "\nActually ".listfiles(\%spool,0). " files in the spool\n\n";
 print("put in spool a Multi lines message with a priority of 2\n");
 putinspool(\%spool,"Multiline\nmessage\n",2);
 print("Read the spool \n");
-@tab = listfiles(\%spool,1);
+@tab = listfiles(\%spool,0);
 my @result;
 foreach $tmp(@tab)
 {
@@ -84,4 +84,38 @@ foreach $tmp(@tab)
 	}
 }
 
+print "Create 24 files with randomize priority => ";
 
+my $rnd;
+
+for($i = 0; $i < 24; $i++)
+{
+	$rnd = (int(rand(5)) + 1);
+	$max = int(rand(4096));
+	for($tmp = 0; $tmp < $max ; $tmp++)
+	{
+		$content = ".".$content;
+	}
+	if((putinspool(\%spool,$content."\n",$rnd)) == 1)
+	{
+		print ".";
+	}
+	else
+	{
+		print "\n-1\n";
+	}
+	$content = "";
+}
+
+print "\n";
+
+print "Scan of spool with priority =>";
+@tab = listfiles(\%spool,1);
+print @tab . "files in spool\n";
+foreach $tmp(@tab)
+{
+	print $tmp . "\n";
+	delfile($tmp);
+}
+
+print "Actually " . listfiles(\%spool,0) . " in the spool\n";
